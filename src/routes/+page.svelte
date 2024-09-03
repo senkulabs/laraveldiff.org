@@ -17,7 +17,7 @@
     let targetVersion = '';
     
     ({source, target} = selectVersion(sourceVersion));
-    targetVersion = target[0];
+    targetVersion = target.length > 0 ? target[0] : '';
 
     /**
 	 * @param {{ target: { value: string; }; }} event
@@ -42,6 +42,7 @@
 <form on:submit|preventDefault={submit}>
 <label for="source">Source</label>
 <select bind:value={sourceVersion} id="source" on:change={updateSelectVersion}>
+	<option value="" disabled>Select source version</option>
     {#each source as item}
         <option value={item}>{item}</option>
     {/each}
@@ -49,6 +50,7 @@
 
 <label for="target">Target</label>
 <select bind:value={targetVersion} id="target">
+	<option value="">Select target version</option>
     {#each target as item}
         <option value={item}>{item}</option>
     {/each}

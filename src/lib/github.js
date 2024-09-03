@@ -41,7 +41,7 @@ export async function allTags(repository) {
 
 let tags = [...await allTags('laravel/laravel')];
 
-export let sourceTag = tags[1];
+export let sourceTag = (tags.length > 0) ? tags[1] : '';
 
 /**
  * @param {string} sourceVersion
@@ -95,6 +95,9 @@ export async function patch(sourceVersion, targetVersion, repository)
  */
 export async function getDiff(sourceVersion, targetVersion, repository)
 {
+    console.log('source version', sourceVersion);
+    console.log('target version', targetVersion);
+
     sourceVersion = sourceVersion.substring(1);
     targetVersion = targetVersion.substring(1);
     
