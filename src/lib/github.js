@@ -37,7 +37,6 @@ export async function allTags(repository) {
         // TODO: Cache it because GitHub has API rate limit.
         return tagNames;
     } catch (error) {
-        console.error("Opps, we get API error limit from GitHub API");
         return mockTags();
     }
 }
@@ -83,7 +82,6 @@ export async function patch(sourceVersion, targetVersion, repository)
             files = files.concat(response.data.files).filter((file) => {
                 return !excludeFilenames.some(prefix => file.filename.startsWith(prefix));
             });
-            console.log(files);
         }
     }
 
@@ -98,9 +96,6 @@ export async function patch(sourceVersion, targetVersion, repository)
  */
 export async function getDiff(sourceVersion, targetVersion, repository)
 {
-    console.log('source version', sourceVersion);
-    console.log('target version', targetVersion);
-
     sourceVersion = sourceVersion.substring(1);
     targetVersion = targetVersion.substring(1);
     
