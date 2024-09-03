@@ -1,5 +1,5 @@
 <script>
-	import { sourceTag, selectVersion, getDiff } from '$lib';
+	import { sourceTag, selectVersion, getDiff } from '$lib/github';
 
 	const repository = 'laravel/laravel';
 	/**
