@@ -4,6 +4,9 @@ import { mockTags } from "./mockData";
 
 const octokit = new Octokit();
 
+// Exclude filename when get patch between two versions.
+const excludeFilenames = ['CHANGELOG.md', '.github', 'README.md'];
+
 /**
  * @param {string} repository
  */
@@ -78,7 +81,7 @@ export async function patch(sourceVersion, targetVersion, repository)
     )) {
         if (response.data.files) {
             files = files.concat(response.data.files).filter((file) => {
-                return !['CHANGELOG.md', '.github'].some(prefix => file.filename.startsWith(prefix));
+                return !excludeFilenames.some(prefix => file.filename.startsWith(prefix));
             });
             console.log(files);
         }
