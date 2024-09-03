@@ -6,89 +6,113 @@
 	 * @type {any[]}
 	 */
 	let source = [];
-    /**
+	/**
 	 * @type {any[]}
 	 */
-    let target = [];
-    let sourceVersion = sourceTag;
-    /**
-     * @type {string}
-     */
-    let targetVersion = '';
-    
-    ({source, target} = selectVersion(sourceVersion));
-    targetVersion = target.length > 0 ? target[0] : '';
+	let target = [];
+	let sourceVersion = sourceTag;
+	/**
+	 * @type {string}
+	 */
+	let targetVersion = '';
 
-    /**
+	({ source, target } = selectVersion(sourceVersion));
+	targetVersion = target.length > 0 ? target[0] : '';
+
+	/**
 	 * @param {{ target: { value: string; }; }} event
 	 */
-    function updateSelectVersion(event) {
-        // Update the sourceVersion to match with selected value.
-        sourceVersion = event.target.value;
-        
-        ({ source, target } = selectVersion(sourceVersion));
-    }
+	function updateSelectVersion(event) {
+		// Update the sourceVersion to match with selected value.
+		sourceVersion = event.target.value;
+
+		({ source, target } = selectVersion(sourceVersion));
+	}
 
 	let diff = getDiff(sourceVersion, targetVersion, repository);
-    
-    function submit() {
-        diff = getDiff(sourceVersion, targetVersion, repository);
-    }
+
+	function submit() {
+		diff = getDiff(sourceVersion, targetVersion, repository);
+	}
 </script>
 
-<h1>Laravel Diff</h1>
-<p>Compare between source and target version of Laravel framework. Think about Laravel Shift but in manual way. 😁</p>
+<svelte:head>
+	<title>LaravelDiff</title>
+</svelte:head>
 
-<form on:submit|preventDefault={submit}>
-<label for="source">Source</label>
-<select bind:value={sourceVersion} id="source" on:change={updateSelectVersion}>
-	<option value="" disabled>Select source version</option>
-    {#each source as item}
-        <option value={item}>{item}</option>
-    {/each}
-</select>
+<div class="container" style="margin: 0 auto;">
+	<h1>Laravel Diff</h1>
+	<p>
+		Compare between source and target version of Laravel framework. Think about Laravel Shift but in
+		manual way. 😁
+	</p>
 
-<label for="target">Target</label>
-<select bind:value={targetVersion} id="target">
-	<option value="">Select target version</option>
-    {#each target as item}
-        <option value={item}>{item}</option>
-    {/each}
-</select>
+	<form on:submit|preventDefault={submit}>
+		<label for="source">Source</label>
+		<select bind:value={sourceVersion} id="source" on:change={updateSelectVersion}>
+			<option value="" disabled>Select source version</option>
+			{#each source as item}
+				<option value={item}>{item}</option>
+			{/each}
+		</select>
 
-<button type="submit">Submit</button>
-</form>
+		<label for="target">Target</label>
+		<select bind:value={targetVersion} id="target">
+			<option value="" disabled>Select target version</option>
+			{#each target as item}
+				<option value={item}>{item}</option>
+			{/each}
+		</select>
 
-{#await diff}
-	<p>Get diff between {sourceVersion} and {targetVersion}...</p>
-{:then result}
-    <p>Showing {result.length} changed files.</p>
-	{#each result as item}
-		<div class="file" id="diff-{item.sha}">
-			<div class="meta">
-				<span><a href="#diff={item.sha}">{item.filename}</a></span>
-				<span class="links"> </span>
+		<button type="submit">Submit</button>
+	</form>
+
+	{#await diff}
+		<p>Get diff between {sourceVersion} and {targetVersion}...</p>
+	{:then result}
+		<p>Showing {result.length} changed files.</p>
+		{#each result as item}
+			<div class="file" id="diff-{item.sha}">
+				<div class="meta">
+					<span><a class="file-anchor" href="#diff={item.sha}">{item.filename}</a></span>
+					<span class="links">
+						<a target="_blank" class="source" href={item.source_url}>{sourceVersion}</a>
+						...
+						<a target="_blank" class="target" href={item.target_url}>{targetVersion}</a>
+					</span>
+				</div>
+				<table class="diff">
+					<tbody>
+						{#each item.lines as line}
+							<tr>
+								<td class="line-num {line.status}" data-line-number={line.number}></td>
+								<td class="line-num {line.status}" data-line-number={line.number}></td>
+								<td class="line-code {line.status}">
+									{line.text}
+								</td>
+							</tr>
+						{/each}
+					</tbody>
+				</table>
 			</div>
-			<table class="diff">
-				<tbody>
-					{#each item.lines as line}
-						<tr>
-							<td class="line-num {line.status}" data-line-number="{line.number}"></td>
-							<td class="line-num {line.status}" data-line-number="{line.number}"></td>
-							<td class="line-code {line.status}">
-								{line.text}
-							</td>
-						</tr>
-					{/each}
-				</tbody>
-			</table>
-		</div>
-	{/each}
-{:catch error}
-    <p>{error.message}</p>
-{/await}
+		{/each}
+	{:catch error}
+		<p>{error.message}</p>
+	{/await}
+</div>
 
 <style>
+	.container {
+		width: 100%;
+	}
+
+	/* Large screen */
+	@media screen and (min-width: 1024px) {
+		.container {
+			width: 960px;
+		}
+	}
+
 	.file {
 		border: 1px solid #ddd;
 		border-radius: 4px;

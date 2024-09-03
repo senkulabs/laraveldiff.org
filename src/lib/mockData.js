@@ -1,6 +1,7 @@
-export function mockTags() {
-    return [];
-}
+/**
+ * @type {never[] | (() => any)}
+ */
+export const mockTags = [];
 
 /**
  * @param {string} sourceVersion
@@ -22,9 +23,8 @@ export function mockPatch(sourceVersion, targetVersion) {
           additions: 5,
           deletions: 1,
           changes: 6,
-          blob_url: 'https://github.com/laravel/laravel/blob/2897a49c65a37e385d25d6606d8258e1afb39774/CHANGELOG.md',
-          raw_url: 'https://github.com/laravel/laravel/raw/2897a49c65a37e385d25d6606d8258e1afb39774/CHANGELOG.md',
-          contents_url: 'https://api.github.com/repos/laravel/laravel/contents/CHANGELOG.md?ref=2897a49c65a37e385d25d6606d8258e1afb39774',
+          source_url: `https://github.com/laravel/laravel/blob/${sourceVersion}/CHANGELOG.md`,
+          target_url: `https://github.com/laravel/laravel/blob/${targetVersion}/CHANGELOG.md`,
           patch: '@@ -1,6 +1,10 @@\n' +
             ' # Release Notes\n' +
             ' \n' +
@@ -45,9 +45,8 @@ export function mockPatch(sourceVersion, targetVersion) {
           additions: 3,
           deletions: 0,
           changes: 3,
-          blob_url: 'https://github.com/laravel/laravel/blob/2897a49c65a37e385d25d6606d8258e1afb39774/config%2Fdatabase.php',
-          raw_url: 'https://github.com/laravel/laravel/raw/2897a49c65a37e385d25d6606d8258e1afb39774/config%2Fdatabase.php',
-          contents_url: 'https://api.github.com/repos/laravel/laravel/contents/config%2Fdatabase.php?ref=2897a49c65a37e385d25d6606d8258e1afb39774',
+          source_url: `https://github.com/laravel/laravel/blob/${sourceVersion}/config/database.php`,
+          target_url: `https://github.com/laravel/laravel/blob/${targetVersion}/config/database.php`,
           patch: '@@ -37,6 +37,9 @@\n' +
             "             'database' => env('DB_DATABASE', database_path('database.sqlite')),\n" +
             "             'prefix' => '',\n" +

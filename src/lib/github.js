@@ -28,7 +28,7 @@ export async function allTags(repository) {
             )) {
                 tagNames = tagNames.concat(response.data.map((data) => data.name));
             }
-
+            
             return tagNames;
         };
 
@@ -37,7 +37,7 @@ export async function allTags(repository) {
         // TODO: Cache it because GitHub has API rate limit.
         return tagNames;
     } catch (error) {
-        return mockTags();
+        return mockTags;
     }
 }
 
@@ -96,11 +96,11 @@ export async function patch(sourceVersion, targetVersion, repository)
  */
 export async function getDiff(sourceVersion, targetVersion, repository)
 {
-    sourceVersion = sourceVersion.substring(1);
-    targetVersion = targetVersion.substring(1);
+    let sourceVersionFormatted = sourceVersion.substring(1);
+    let targetVersionFormatted = targetVersion.substring(1);
     
-    if ((parseInt(targetVersion) - parseInt(sourceVersion)) > 1) {
-        throw new Error(`Please upgrade to the next version incrementally (e.g., from version ${parseInt(sourceVersion)} to ${parseInt(sourceVersion) + 1}). Skipping versions (e.g., from version ${sourceVersion} to ${targetVersion}) is not supported.`);
+    if ((parseInt(targetVersionFormatted) - parseInt(sourceVersionFormatted)) > 1) {
+        throw new Error(`Please upgrade to the next version incrementally (e.g., from version ${parseInt(sourceVersionFormatted)} to ${parseInt(sourceVersionFormatted) + 1}). Skipping versions (e.g., from version ${sourceVersion} to ${targetVersion}) is not supported.`);
     }
 
     const timeoutPromise = new Promise((_, reject) => {
@@ -108,13 +108,15 @@ export async function getDiff(sourceVersion, targetVersion, repository)
     });
 
     try {
-        const result = await Promise.race([patch(sourceVersion, targetVersion, repository), timeoutPromise]);
+        const result = await Promise.race([patch(sourceVersionFormatted, targetVersionFormatted, repository), timeoutPromise]);
 
         const mappedResult = result.map((/** @type {{ sha: any; filename: any; patch: string; }} */ item) => {
             return {
                 sha: item.sha,
                 filename: item.filename,
-                lines: parsedLines(item.patch)
+                source_url: `https://github.com/${repository}/blob/${sourceVersion}/${item.filename}`,
+                target_url: `https://github.com/${repository}/blob/${targetVersion}/${item.filename}`,
+                lines: parsedLines(item.patch),
             }
         });
         
