@@ -1,5 +1,4 @@
 // place files you want to import through the `$lib` alias in this folder.
-import { text } from "@sveltejs/kit";
 import { Octokit } from "octokit";
 
 const octokit = new Octokit();
@@ -22,6 +21,31 @@ export async function allTags(repository) {
     }
 
     return tagNames;
+}
+
+/**
+ * @param {string} repository
+ */
+async function mockTags(repository) {
+    return [
+        'v11.1.4', 'v11.1.3',  'v11.1.2', 'v11.1.1', 'v11.1.0', 'v11.0.9',
+        'v11.0.8', 'v11.0.7',  'v11.0.6', 'v11.0.5', 'v11.0.4', 'v11.0.3',
+        'v11.0.2', 'v11.0.1',  'v11.0.0'];
+}
+
+let tags = [...await mockTags('laravel/laravel')];
+
+export let sourceTag = tags[1];
+
+/**
+ * @param {string} sourceVersion
+ */
+export function selectVersion(sourceVersion) {
+    let source = tags.slice(1);
+    let getIndex = tags.indexOf(sourceVersion);
+    let target = tags.slice(0, getIndex);
+
+    return { source, target };
 }
 
 /**
@@ -61,6 +85,13 @@ export async function patch(sourceVersion, targetVersion, repository)
  */
 async function mockPatch(sourceVersion, targetVersion, repository)
 {
+    const _sourceVersion = 'v11.1.3';
+    const _targetVersion = 'v11.1.4';
+    
+    if ([_sourceVersion, _targetVersion].toString() !== [sourceVersion, targetVersion].toString()) {
+        throw new Error(`Opps, source version ${sourceVersion} and target version ${targetVersion} not found`);
+    }
+
     return [
         {
           sha: '3995a5b919ca7b365d365c7103b40e026adeb7ed',
@@ -114,9 +145,8 @@ async function mockPatch(sourceVersion, targetVersion, repository)
  * @param {any} targetVersion
  * @param {any} repository
  */
-export async function mapPatch(sourceVersion, targetVersion, repository)
+export async function getDiff(sourceVersion, targetVersion, repository)
 {
-    // const result = await patch(sourceVersion, targetVersion, repository);
     const result = await mockPatch(sourceVersion, targetVersion, repository);
 
     const mappedResult = result.map((item) => {
@@ -126,6 +156,7 @@ export async function mapPatch(sourceVersion, targetVersion, repository)
             lines: parsedLines(item.patch)
         }
     });
+    
     return mappedResult;
 }
 
@@ -155,10 +186,10 @@ function parsedLines(diffString) {
     return parsedLines;
 }
 
-const sourceVersion = '11.1.3';
-const targetVersion = '11.1.4';
-const repository = 'laravel/laravel';
+// const sourceVersion = '11.1.3';
+// const targetVersion = '11.1.4';
+// const repository = 'laravel/laravel';
 
-const result = await mapPatch(sourceVersion, targetVersion, repository);
+// const result = await mapPatch(sourceVersion, targetVersion, repository);
 
-console.log(result);
+// console.log(result);

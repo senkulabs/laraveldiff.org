@@ -1,31 +1,64 @@
 <script>
-	import { allTags, mapPatch } from '$lib';
+	import { sourceTag, selectVersion, getDiff } from '$lib';
 
 	const repository = 'laravel/laravel';
-	const sourceVersion = '11.1.3';
-	const targetVersion = '11.1.4';
+	/**
+	 * @type {any[]}
+	 */
+	let source = [];
+    /**
+	 * @type {any[]}
+	 */
+    let target = [];
+    let sourceVersion = sourceTag;
+    /**
+     * @type {string}
+     */
+    let targetVersion = '';
+    
+    ({source, target} = selectVersion(sourceVersion));
+    targetVersion = target[0];
 
-	const tags = allTags(repository);
-	const patch = mapPatch(sourceVersion, targetVersion, repository);
+    /**
+	 * @param {{ target: { value: string; }; }} event
+	 */
+    function updateSelectVersion(event) {
+        // Update the sourceVersion to match with selected value.
+        sourceVersion = event.target.value;
+        
+        ({ source, target } = selectVersion(sourceVersion));
+    }
+
+	let diff = getDiff(sourceVersion, targetVersion, repository);
+    
+    function submit() {
+        diff = getDiff(sourceVersion, targetVersion, repository);
+    }
 </script>
 
 <h1>Laravel Diff</h1>
 <p>Compare between source and target version of Laravel framework. Think about Laravel Shift but in manual way. 😁</p>
 
-{#await tags}
-	<select>
-        <option value="" disabled>Select source version</option>
-    </select>
-{:then result}
-	<select>
-		{#each result as item}
-			<option value={item}>{item}</option>
-		{/each}
-	</select>
-{/await}
+<form on:submit|preventDefault={submit}>
+<label for="source">Source</label>
+<select bind:value={sourceVersion} id="source" on:change={updateSelectVersion}>
+    {#each source as item}
+        <option value={item}>{item}</option>
+    {/each}
+</select>
 
-{#await patch}
-	<p>Waiting patch result from version {sourceVersion} to {targetVersion}....</p>
+<label for="target">Target</label>
+<select bind:value={targetVersion} id="target">
+    {#each target as item}
+        <option value={item}>{item}</option>
+    {/each}
+</select>
+
+<button type="submit">Submit</button>
+</form>
+
+{#await diff}
+	<p>Get diff between {sourceVersion} and {targetVersion}...</p>
 {:then result}
     <p>Showing {result.length} changed files.</p>
 	{#each result as item}
@@ -49,6 +82,8 @@
 			</table>
 		</div>
 	{/each}
+{:catch error}
+    <p>{error.message}</p>
 {/await}
 
 <style>
