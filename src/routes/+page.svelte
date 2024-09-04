@@ -1,23 +1,27 @@
 <script>
-	import { sourceTag, selectVersion, getDiff } from '$lib/github';
+	import { tags, getDiff } from '$lib/index';
+	import { selectVersion } from '$lib/util';
 
-	const repository = 'laravel/laravel';
 	/**
-	 * @type {any[]}
+	 * @type {string | any[]}
 	 */
 	let source = [];
+	
 	/**
-	 * @type {any[]}
+	 * @type {string | any[]}
 	 */
 	let target = [];
-	let sourceVersion = sourceTag;
+
+	let sourceVersion = (tags.length > 1) ? tags[1] : '';
+	
+
+	({ source, target } = selectVersion(tags, sourceVersion));
+	
 	/**
 	 * @type {string}
 	 */
-	let targetVersion = '';
+	 let targetVersion = target.length > 0 ? target[0] : '';
 
-	({ source, target } = selectVersion(sourceVersion));
-	targetVersion = target.length > 0 ? target[0] : '';
 
 	/**
 	 * @param {{ target: { value: string; }; }} event
@@ -26,26 +30,30 @@
 		// Update the sourceVersion to match with selected value.
 		sourceVersion = event.target.value;
 
-		({ source, target } = selectVersion(sourceVersion));
+		({ source, target } = selectVersion(tags, sourceVersion));
 	}
 
-	let diff = getDiff(sourceVersion, targetVersion, repository);
-
+	let diff = getDiff(sourceVersion, targetVersion);
+	let additionalTitle = `${sourceVersion} -> ${targetVersion}`;
+	
 	function submit() {
-		diff = getDiff(sourceVersion, targetVersion, repository);
+		diff = getDiff(sourceVersion, targetVersion);
+		additionalTitle = `${sourceVersion} -> ${targetVersion}`;
 	}
+
+	
 </script>
 
 <svelte:head>
-	<title>LaravelDiff</title>
+	<title>LaravelDiff {additionalTitle}</title>
+	<meta name="description" content="A utility to compare what files changed when upgrade your Laravel framework.">
 </svelte:head>
 
 <div class="container" style="margin: 0 auto;">
 	<h1>Laravel Diff</h1>
-	<p>
-		Compare between source and target version of Laravel framework. Think about Laravel Shift but in
-		manual way. 😁
-	</p>
+	<p>A utility to compare what files changed when upgrade your Laravel framework.</p>
+	<p><em>Kind a <a href="https://laravelshift.com" target="_blank" rel="noopener noreferrer">Laravel Shift</a> but tiny and manual.</em></p>
+	<p><em>Motivated from <a href="https://github.com/railsdiff/railsdiff" target="_blank" rel="noopener noreferer">railsdiff.org</a></em></p>
 
 	<form on:submit|preventDefault={submit}>
 		<label for="source">Source</label>
