@@ -96,7 +96,9 @@
 								<td class="line-num {line.status}" data-line-number={line.number}></td>
 								<td class="line-num {line.status}" data-line-number={line.number}></td>
 								<td class="line-code {line.status}">
-									{line.text}
+									<span class="line-code-inner" data-code-marker={line.text.substring(0, 1)}>
+										<span>{line.text.substring(1)}</span>
+									</span>
 								</td>
 							</tr>
 						{/each}
@@ -213,5 +215,13 @@
 
 	.line-code.add {
 		background-color: #eaffea;
+	}
+
+	.line-code-inner::before {
+		content: attr(data-code-marker);
+	}
+
+	.line-code-inner span {
+		margin-left: 8px;
 	}
 </style>
