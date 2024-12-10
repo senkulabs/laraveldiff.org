@@ -56,6 +56,10 @@ export async function getDiff(repository, sourceVersion, targetVersion) {
 				files = files.concat(response.data.files).filter((file) => {
 					return !excludeFilenames.some(prefix => file.filename.startsWith(prefix));
 				});
+				
+				files = files.filter((/** @type {{ sha: any; filename: any; patch: string; }} */ item) => {
+					return item.patch !== undefined;
+				});
 			}
 		}
 
