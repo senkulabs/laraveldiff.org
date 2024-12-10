@@ -15,6 +15,7 @@
 		baseVersion = event.target.value;
 		base = selectVersion(baseVersion, tags).base;
 		target = selectVersion(baseVersion, tags).target;
+		targetVersion = target[0];
 	}
 
 	let diff = $state(getDiff(tags[1], tags[0]));
