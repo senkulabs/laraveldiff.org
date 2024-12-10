@@ -1,5 +1,4 @@
 import { allTags } from '$lib/github';
-import { FOOBAR } from '$env/static/private';
 
 export async function GET({ request, url }) {
     const isCloudflare = typeof caches !== 'undefined';
@@ -12,12 +11,6 @@ export async function GET({ request, url }) {
     }
 
     let json = await allTags('laravel/laravel');
-
-    // let json = {
-    //     timestamp: new Date().toISOString(),
-    //     message: 'Hello there!',
-    //     secret: FOOBAR,
-    // };
 
     let response = new Response(JSON.stringify(json));
 

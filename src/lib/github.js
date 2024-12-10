@@ -2,16 +2,16 @@ import { dev } from '$app/environment';
 import { GITHUB_TOKEN } from '$env/static/private';
 import { Octokit } from "octokit";
 
+const options = dev ? {
+	auth: GITHUB_TOKEN
+} : {};
+
+const octokit = new Octokit(options);
+
 /**
  * @param {string} repository
  */
 export async function allTags(repository) {
-	const options = dev ? {
-		auth: GITHUB_TOKEN
-	} : {};
-
-	const octokit = new Octokit(options);
-
 	const [owner, repo] = repository.split('/', 2);
 
 	/**
@@ -29,14 +29,12 @@ export async function allTags(repository) {
 }
 
 /**
- * @param {{ split: (arg0: string, arg1: number) => [any, any]; }} repository
+ * @param {string} repository
  * @param {any} sourceVersion
  * @param {any} targetVersion
  */
 export async function getDiff(repository, sourceVersion, targetVersion) {
 	try {
-		const octokit = new Octokit();
-
 		const [owner, repo] = repository.split('/', 2);
 		/**
 		 * @type {any[]}
