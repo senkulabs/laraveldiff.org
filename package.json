@@ -13,6 +13,7 @@
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^3.3.1",
+		"@sveltejs/adapter-cloudflare": "^4.8.0",
 		"@sveltejs/kit": "^2.9.1",
 		"@sveltejs/vite-plugin-svelte": "^4.0.2",
 		"prettier": "^3.4.2",
@@ -20,7 +21,8 @@
 		"svelte": "^5.10.0",
 		"svelte-check": "^4.1.1",
 		"typescript": "^5.7.2",
-		"vite": "^5.4.11"
+		"vite": "^5.4.11",
+		"wrangler": "^3.94.0"
 	},
 	"type": "module"
 }
