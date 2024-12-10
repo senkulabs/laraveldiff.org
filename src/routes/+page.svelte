@@ -1,7 +1,10 @@
 <script>
-	import { tags, getDiff } from '$lib/index';
 	import { selectVersion } from '$lib/util';
 	
+	let { data } = $props();
+	let tags = data.tags;
+	let diff = $state(data.diff);
+
 	let baseVersion = $state(tags[1]);
 	let targetVersion = $state(tags[0]);
 
@@ -18,7 +21,6 @@
 		targetVersion = target[0];
 	}
 
-	let diff = $state(getDiff(tags[1], tags[0]));
 	let additionalTitle = $state(`${tags[1]} - ${tags[0]}`);
 
 	/**
@@ -26,7 +28,8 @@
 	 */
 	function submit(event) {
 		event.preventDefault();
-		diff = getDiff(baseVersion, targetVersion);
+		diff = fetch(`/api/diff?base=${baseVersion}&target=${targetVersion}`)
+			.then(response => response.json());
 		additionalTitle = `${baseVersion} - ${targetVersion}`;
 	}
 </script>
