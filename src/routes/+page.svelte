@@ -1,47 +1,33 @@
 <script>
 	import { tags, getDiff } from '$lib/index';
 	import { selectVersion } from '$lib/util';
-
-	/**
-	 * @type {string | any[]}
-	 */
-	let source = [];
 	
-	/**
-	 * @type {string | any[]}
-	 */
-	let target = [];
+	let baseVersion = $state(tags[1]);
+	let targetVersion = $state(tags[0]);
 
-	let sourceVersion = (tags.length > 1) ? tags[1] : '';
-	
-
-	({ source, target } = selectVersion(tags, sourceVersion));
-	
-	/**
-	 * @type {string}
-	 */
-	 let targetVersion = target.length > 0 ? target[0] : '';
-
+	let base = $state(selectVersion(tags[1], tags).base);
+	let target = $state(selectVersion(tags[1], tags).target);
 
 	/**
-	 * @param {{ target: { value: string; }; }} event
+	 * @param {{ target: { value: any; }; }} event
 	 */
-	function updateSelectVersion(event) {
-		// Update the sourceVersion to match with selected value.
-		sourceVersion = event.target.value;
-
-		({ source, target } = selectVersion(tags, sourceVersion));
+	function changeSelectVersion(event) {
+		baseVersion = event.target.value;
+		base = selectVersion(baseVersion, tags).base;
+		target = selectVersion(baseVersion, tags).target;
 	}
 
-	let diff = getDiff(sourceVersion, targetVersion);
-	let additionalTitle = `${sourceVersion} -> ${targetVersion}`;
-	
-	function submit() {
-		diff = getDiff(sourceVersion, targetVersion);
-		additionalTitle = `${sourceVersion} -> ${targetVersion}`;
-	}
+	let diff = $state(getDiff(tags[1], tags[0]));
+	let additionalTitle = $state(`${tags[1]} - ${tags[0]}`);
 
-	
+	/**
+	 * @param {{ preventDefault: () => void; }} event
+	 */
+	function submit(event) {
+		event.preventDefault();
+		diff = getDiff(baseVersion, targetVersion);
+		additionalTitle = `${baseVersion} - ${targetVersion}`;
+	}
 </script>
 
 <svelte:head>
@@ -55,11 +41,11 @@
 	<p><em>Kind a <a href="https://laravelshift.com" target="_blank" rel="noopener noreferrer">Laravel Shift</a> but tiny and manual.</em></p>
 	<p><em>Motivated from <a href="https://github.com/railsdiff/railsdiff" target="_blank" rel="noopener noreferer">railsdiff.org</a></em></p>
 
-	<form on:submit|preventDefault={submit}>
-		<label for="source">Source</label>
-		<select bind:value={sourceVersion} id="source" on:change={updateSelectVersion}>
-			<option value="" disabled>Select source version</option>
-			{#each source as item}
+	<form onsubmit={submit}>
+		<label for="base">Base</label>
+		<select bind:value={baseVersion} id="base" onchange={changeSelectVersion}>
+			<option value="" disabled>Select base version</option>
+			{#each base as item}
 				<option value={item}>{item}</option>
 			{/each}
 		</select>
@@ -76,7 +62,7 @@
 	</form>
 
 	{#await diff}
-		<p>Get diff between {sourceVersion} and {targetVersion}...</p>
+		<p>Get diff between {baseVersion} and {targetVersion}...</p>
 	{:then result}
 		<p>Showing {result.length} changed files.</p>
 		{#each result as item}
@@ -84,7 +70,7 @@
 				<div class="meta">
 					<span><a class="file-anchor" href="#diff={item.sha}">{item.filename}</a></span>
 					<span class="links">
-						<a target="_blank" class="source" href={item.source_url}>{sourceVersion}</a>
+						<a target="_blank" class="source" href={item.source_url}>{baseVersion}</a>
 						...
 						<a target="_blank" class="target" href={item.target_url}>{targetVersion}</a>
 					</span>
