@@ -30,10 +30,10 @@ export async function allTags(repository) {
 
 /**
  * @param {string} repository
- * @param {any} sourceVersion
+ * @param {any} baseVersion
  * @param {any} targetVersion
  */
-export async function getDiff(repository, sourceVersion, targetVersion) {
+export async function getDiff(repository, baseVersion, targetVersion) {
 	try {
 		const [owner, repo] = repository.split('/', 2);
 		/**
@@ -46,7 +46,7 @@ export async function getDiff(repository, sourceVersion, targetVersion) {
 		for await (const response of octokit.paginate.iterator(
 			octokit.rest.repos.compareCommitsWithBasehead,
 			{
-				basehead: `${sourceVersion}...${targetVersion}`,
+				basehead: `${baseVersion}...${targetVersion}`,
 				owner,
 				per_page: 100,
 				repo
@@ -56,7 +56,7 @@ export async function getDiff(repository, sourceVersion, targetVersion) {
 				files = files.concat(response.data.files).filter((file) => {
 					return !excludeFilenames.some(prefix => file.filename.startsWith(prefix));
 				});
-				
+
 				files = files.filter((/** @type {{ sha: any; filename: any; patch: string; }} */ item) => {
 					return item.patch !== undefined;
 				});
@@ -67,7 +67,7 @@ export async function getDiff(repository, sourceVersion, targetVersion) {
 			return {
 				sha: item.sha,
 				filename: item.filename,
-				source_url: `https://github.com/${repository}/blob/${sourceVersion}/${item.filename}`,
+				base_url: `https://github.com/${repository}/blob/${baseVersion}/${item.filename}`,
 				target_url: `https://github.com/${repository}/blob/${targetVersion}/${item.filename}`,
 				lines: parsedLines(item.patch),
 			}
@@ -75,7 +75,7 @@ export async function getDiff(repository, sourceVersion, targetVersion) {
 
 		return result;
 	} catch (error) {
-		throw new Error(`Cannot get diff between source version: ${sourceVersion} and target version: ${targetVersion}`);
+		throw new Error(`Cannot get diff between base version: ${baseVersion} and target version: ${targetVersion}`);
 	}
 }
 

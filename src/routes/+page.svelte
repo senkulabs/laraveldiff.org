@@ -74,7 +74,7 @@
 				<div class="meta">
 					<span><a class="file-anchor" href="#diff={item.sha}">{item.filename}</a></span>
 					<span class="links">
-						<a target="_blank" class="source" href={item.source_url}>{baseVersion}</a>
+						<a target="_blank" class="base" href={item.base_url}>{baseVersion}</a>
 						...
 						<a target="_blank" class="target" href={item.target_url}>{targetVersion}</a>
 					</span>
@@ -140,7 +140,7 @@
 		font-size: 80%;
 	}
 
-	.meta .source {
+	.meta .base {
 		color: #c88;
 	}
 
