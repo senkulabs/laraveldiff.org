@@ -1,3 +1,4 @@
+import { dev } from '$app/environment';
 import { GITHUB_TOKEN } from '$env/static/private';
 import { Octokit } from "octokit";
 
@@ -5,7 +6,7 @@ import { Octokit } from "octokit";
  * @param {string} repository
  */
 export async function allTags(repository) {
-	const options = process?.env.NODE_ENV === 'development' ? {
+	const options = dev ? {
 		auth: GITHUB_TOKEN
 	} : {};
 
