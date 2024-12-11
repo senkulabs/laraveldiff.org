@@ -39,6 +39,8 @@
 	<meta name="description" content="A utility to compare what files changed when upgrade your Laravel framework.">
 	<meta name="og:title" content="LaravelDiff">
 	<meta name="og:description" content="A utility to compare what files changed when upgrade your Laravel framework.">
+	<meta name="twitter:title" content="LaravelDiff">
+	<meta name="twitter:description" content="A utility to compare what files changed when upgrade your Laravel framework.">
 </svelte:head>
 
 <div class="container" style="margin: 0 auto;">
