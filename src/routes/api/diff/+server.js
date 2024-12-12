@@ -25,6 +25,44 @@ export async function GET({ request, url }) {
     }
 
     try {
+        let base = baseVersion?.replace('v', '').split('.').map(Number) ?? [];
+        let target = targetVersion?.replace('v', '').split('.').map(Number) ?? [];
+
+        if (base[0] > target[0]) {
+            return new Response('Base version must be less than target version', {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Headers': 'GET, POST'
+                },
+                status: 400
+            });
+        }
+
+        if (base[0] === target[0]) {
+            if (base[1] === target[1]) {
+                if (base[2] > target[2]) {
+                    return new Response('Base version must be less than target version', {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Access-Control-Allow-Origin': '*',
+                            'Access-Control-Allow-Headers': 'GET, POST'
+                        },
+                        status: 400
+                    });
+                }
+            } else if (base[1] > target[1]) {
+                return new Response('Base version must be less than target version', {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*',
+                        'Access-Control-Allow-Headers': 'GET, POST'
+                    },
+                    status: 400
+                });
+            }
+        }
+
         let json = await getDiff('laravel/laravel', baseVersion, targetVersion);
 
         let response = new Response(JSON.stringify(json), {
