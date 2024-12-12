@@ -43,7 +43,7 @@
 	<meta name="twitter:description" content="A utility to compare what files changed when upgrade your Laravel framework.">
 </svelte:head>
 
-<div class="container" style="margin: 0 auto;">
+<div class="container">
 	<h1>Laravel Diff</h1>
 	<p>A utility to compare what files changed when upgrade your Laravel framework.</p>
 	<p><em>Kind a <a href="https://laravelshift.com" target="_blank" rel="noopener noreferrer">Laravel Shift</a> but tiny and manual.</em></p>
@@ -107,6 +107,8 @@
 <style>
 	.container {
 		width: 100%;
+		margin: 0 auto;
+		padding: 0 1rem;
 	}
 
 	/* Large screen */
@@ -128,6 +130,10 @@
 		border-top-left-radius: 4px;
 		border-top-right-radius: 4px;
 		padding: 5px 10px;
+		/* hide overflow text */
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 
 	.meta .file-anchor {
