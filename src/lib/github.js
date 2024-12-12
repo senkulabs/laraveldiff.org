@@ -41,7 +41,7 @@ export async function getDiff(repository, baseVersion, targetVersion) {
 		 */
 		let files = [];
 		// Exclude filename when get patch between two versions.
-		const excludeFilenames = ['CHANGELOG.md', '.github', 'README.md'];
+		const excludeFilenames = ['CHANGELOG.md', '.github', 'README.md', 'readme.md'];
 
 		for await (const response of octokit.paginate.iterator(
 			octokit.rest.repos.compareCommitsWithBasehead,
