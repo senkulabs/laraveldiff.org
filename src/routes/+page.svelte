@@ -11,6 +11,16 @@
 	let base = $state(selectVersion(tags[1], tags).base);
 	let target = $state(selectVersion(tags[1], tags).target);
 
+	let toggleCollapse = $state(false);
+	let listHeight = $state(0);
+	/**
+	 * @type {HTMLOListElement}
+	 */
+	// svelte-ignore non_reactive_update
+	let list;
+
+	let highlighted = $state('');
+
 	/**
 	 * @param {{ target: { value: any; }; }} event
 	 */
@@ -28,18 +38,52 @@
 	 */
 	function submit(event) {
 		event.preventDefault();
+		// Reset toggle collapse to false if the the list was collapsed.
+		toggleCollapse = false;
 		diff = fetch(`/api/diff?base=${baseVersion}&target=${targetVersion}`)
 			.then(response => response.json());
 		additionalTitle = `${baseVersion} - ${targetVersion}`;
 	}
+
+	function handleToggleCollapse() {
+		toggleCollapse = !toggleCollapse;
+		// Keep update listHeight value each time we update base and target
+		if (list) {
+			const clone = list.cloneNode(true);
+			clone.style.position = 'absolute';
+			clone.style.visibility = 'hidden';
+			clone.style.height = 'auto';
+			document.body.appendChild(clone);
+			listHeight = clone.offsetHeight;
+			document.body.removeChild(clone);
+		}
+	}
+
+	function handleHighlightTarget(value) {
+		highlighted = `#diff-${value}`;	
+	}
+
+	$effect(() => {
+		window.addEventListener('popstate', function () {
+			if (window.location.hash !== '') {
+				highlighted = window.location.hash;
+				// Get element without the # symbol
+				const elementId = window.location.hash.substring(1);
+				const element = document.getElementById(elementId);
+				if (element) {
+					element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+				}
+			}
+		});
+	});
 </script>
 
 <svelte:head>
-	<title>LaravelDiff {additionalTitle}</title>
+	<title>Laravel Diff {additionalTitle}</title>
 	<meta name="description" content="A utility to compare what files changed when upgrade your Laravel framework.">
-	<meta name="og:title" content="LaravelDiff">
+	<meta name="og:title" content="Laravel Diff">
 	<meta name="og:description" content="A utility to compare what files changed when upgrade your Laravel framework.">
-	<meta name="twitter:title" content="LaravelDiff">
+	<meta name="twitter:title" content="Laravel Diff">
 	<meta name="twitter:description" content="A utility to compare what files changed when upgrade your Laravel framework.">
 </svelte:head>
 
@@ -72,11 +116,16 @@
 	{#await diff}
 		<p>Get diff between {baseVersion} and {targetVersion}...</p>
 	{:then result}
-		<p>Showing {result.length} changed files.</p>
+		<p>Showing <button onclick={handleToggleCollapse}>{result.length} changed {result.length > 1 ? 'files' : 'file'}</button>.</p>
+		<ol bind:this={list} style:height={toggleCollapse ? `${listHeight}px` : '0px'} class:open={toggleCollapse} class="collapse" style="list-style-type: none; margin: 0; margin-bottom: 1rem; padding: 0;">
+			{#each result as item}
+				<li><a href="#diff-{item.sha}" onclick={() => handleHighlightTarget(item.sha)}>{item.filename}</a></li>
+			{/each}
+		</ol>
 		{#each result as item}
-			<div class="file" id="diff-{item.sha}">
+			<div class="file" class:highlight={highlighted === `#diff-${item.sha}`} id="diff-{item.sha}">
 				<div class="meta">
-					<span><a class="file-anchor" href="#diff={item.sha}">{item.filename}</a></span>
+					<span><a class="file-anchor" onclick={() => handleHighlightTarget(item.sha)} href="#diff-{item.sha}">{item.filename}</a></span>
 					<span class="links">
 						<a target="_blank" class="base" href={item.base_url}>{baseVersion}</a>
 						...
@@ -118,10 +167,24 @@
 		}
 	}
 
+	.collapse {
+		position: relative;
+		overflow: hidden;
+		transition: height .35s ease-in-out;
+	}
+
+	li:not(:last-child) {
+		margin-bottom: 1rem;
+	}
+
 	.file {
 		border: 1px solid #ddd;
 		border-radius: 4px;
 		margin-bottom: 2em;
+	}
+
+	.highlight {
+		border: 2px solid #007bff;
 	}
 
 	.meta {
