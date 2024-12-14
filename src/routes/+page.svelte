@@ -80,6 +80,7 @@
 
 <svelte:head>
 	<title>Laravel Diff {additionalTitle}</title>
+	<meta name="title" content="Laravel Diff">
 	<meta name="description" content="A utility to compare what files changed when upgrade your Laravel framework.">
 	<meta name="og:type" content="website">
 	<meta name="og:title" content="Laravel Diff">
