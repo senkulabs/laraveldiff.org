@@ -25,7 +25,13 @@ export async function allTags(repository) {
 		tagNames = tagNames.concat(response.data.map((data) => data.name));
 	}
 
-	return tagNames;
+	const skipTags = ['v4.0.0-BETA4', 'v4.0.0-BETA3'];
+
+	let filteredTagNames = tagNames.filter(tag => {
+		return !skipTags.includes(tag) && !tag.startsWith('v3');
+	});
+
+	return filteredTagNames;
 }
 
 /**
