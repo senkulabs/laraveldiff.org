@@ -78,10 +78,13 @@
 	});
 	
 	let activeSection = $state({}); // Use object to track state for each row
+	let diffContentHeights = $state({});
 
 	function handleToggleSection(id, section) {
 		activeSection[id] = section;
 	}
+
+	$inspect(diffContentHeights);
 </script>
 
 <svelte:head>
@@ -147,9 +150,9 @@
 						<li><button class:active={activeSection[item.sha] === 'Target'} onclick={() => handleToggleSection(item.sha, 'Target') }>Target</button></li>
 					</ul>
 				</div>
-				{#if activeSection[item.sha] === 'Diff' || !activeSection[item.sha]}
 				<table class="diff">
-					<tbody>
+					{#if activeSection[item.sha] === 'Diff' || !activeSection[item.sha]}
+					<tbody bind:clientHeight={diffContentHeights[item.sha]}>
 						{#each item.lines as line}
 							<tr>
 								<td class="line-num {line.status}" data-line-number={line.number}></td>
@@ -161,18 +164,16 @@
 							</tr>
 						{/each}
 					</tbody>
-				</table>
-				{/if}
-				{#if activeSection[item.sha] === 'Target'}
-				<table>
-					<tbody>
+					{/if}
+					{#if activeSection[item.sha] === 'Target'}
+					<tbody style="height: {diffContentHeights[item.sha]}px;">
 						<tr>
 							<td>&nbsp;</td>
-							<td>TBA! Content goes here!</td>
+							<td style="text-align: center;">TBA! Content goes here!</td>
 						</tr>
 					</tbody>
+					{/if}
 				</table>
-				{/if}
 			</div>
 		{/each}
 	{:catch error}
@@ -256,6 +257,15 @@
 		display: block;
 		font-family: Consolas, Monaco, 'Andale Mono', monospace;
 		overflow-x: auto;
+	}
+
+	tbody {
+		display: block; /** This is important for the height to work */
+	}
+
+	tr {
+		display: table; /** Keep the table row layout */
+		width: 100%;
 	}
 
 	.line-num {
