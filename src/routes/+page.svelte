@@ -76,15 +76,24 @@
 			}
 		});
 	});
-	
-	let activeSection = $state({}); // Use object to track state for each row
+
+	/**
+	 * @type {{ [key: string]: number }}
+	 */
 	let diffContentHeights = $state({});
 
-	function handleToggleSection(id, section) {
-		activeSection[id] = section;
+	/**
+	 * @type {{ [key: string]: string }}
+	 */
+	let activeViews = $state({}); // Tracks active view for each block
+	/**
+	 * @param {string | number} id
+	 * @param {string} view
+	 */
+	function handleActiveViews(id, view) {
+		// Create a new object instead of mutating the existing one
+		activeViews = { ...activeViews, [id]: view };
 	}
-
-	$inspect(diffContentHeights);
 </script>
 
 <svelte:head>
@@ -146,12 +155,12 @@
 				</div>
 				<div class="meta">
 					<ul style="display: flex; justify-content: flex-end; list-style-type: none; gap: .5rem; padding; 0; margin: 0;">
-						<li><button class:active={activeSection[item.sha] === 'Diff' || !activeSection[item.sha]} onclick={() => handleToggleSection(item.sha, 'Diff') }>Diff</button></li>
-						<li><button class:active={activeSection[item.sha] === 'Target'} onclick={() => handleToggleSection(item.sha, 'Target') }>Target</button></li>
+						<li><button class:active={!activeViews[item.sha] || activeViews[item.sha] === 'Diff'} onclick={() => handleActiveViews(item.sha, 'Diff') }>Diff</button></li>
+						<li><button class:active={activeViews[item.sha] === 'Target'} onclick={() => handleActiveViews(item.sha, 'Target') }>Target</button></li>
 					</ul>
 				</div>
 				<table>
-					{#if activeSection[item.sha] === 'Diff' || !activeSection[item.sha]}
+					{#if !activeViews[item.sha] || activeViews[item.sha] === 'Diff'}
 					<tbody bind:clientHeight={diffContentHeights[item.sha]}>
 						{#each item.lines as line}
 							<tr>
@@ -165,7 +174,7 @@
 						{/each}
 					</tbody>
 					{/if}
-					{#if activeSection[item.sha] === 'Target'}
+					{#if activeViews[item.sha] === 'Target'}
 					<tbody style="height: {diffContentHeights[item.sha]}px;">
 						<tr>
 							<td>&nbsp;</td>
