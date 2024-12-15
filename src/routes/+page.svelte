@@ -150,7 +150,7 @@
 						<li><button class:active={activeSection[item.sha] === 'Target'} onclick={() => handleToggleSection(item.sha, 'Target') }>Target</button></li>
 					</ul>
 				</div>
-				<table class="diff">
+				<table>
 					{#if activeSection[item.sha] === 'Diff' || !activeSection[item.sha]}
 					<tbody bind:clientHeight={diffContentHeights[item.sha]}>
 						{#each item.lines as line}
@@ -249,7 +249,7 @@
 		color: #8c8;
 	}
 
-	.diff {
+	table {
 		border-bottom-left-radius: 4px;
 		border-bottom-right-radius: 4px;
 		border-collapse: separate;
