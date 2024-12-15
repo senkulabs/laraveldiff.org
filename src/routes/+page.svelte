@@ -76,6 +76,12 @@
 			}
 		});
 	});
+	
+	let activeSection = $state({}); // Use object to track state for each row
+
+	function handleToggleSection(id, section) {
+		activeSection[id] = section;
+	}
 </script>
 
 <svelte:head>
@@ -135,6 +141,13 @@
 						<a target="_blank" class="target" href={item.target_url}>{targetVersion}</a>
 					</span>
 				</div>
+				<div class="meta">
+					<ul style="display: flex; justify-content: flex-end; list-style-type: none; gap: .5rem; padding; 0; margin: 0;">
+						<li><button class:active={activeSection[item.sha] === 'Diff' || !activeSection[item.sha]} onclick={() => handleToggleSection(item.sha, 'Diff') }>Diff</button></li>
+						<li><button class:active={activeSection[item.sha] === 'Target'} onclick={() => handleToggleSection(item.sha, 'Target') }>Target</button></li>
+					</ul>
+				</div>
+				{#if activeSection[item.sha] === 'Diff' || !activeSection[item.sha]}
 				<table class="diff">
 					<tbody>
 						{#each item.lines as line}
@@ -149,6 +162,17 @@
 						{/each}
 					</tbody>
 				</table>
+				{/if}
+				{#if activeSection[item.sha] === 'Target'}
+				<table>
+					<tbody>
+						<tr>
+							<td>&nbsp;</td>
+							<td>TBA! Content goes here!</td>
+						</tr>
+					</tbody>
+				</table>
+				{/if}
 			</div>
 		{/each}
 	{:catch error}
