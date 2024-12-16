@@ -63,3 +63,45 @@ export function selectVersion(baseVersion, tags) {
     
     return result;
 }
+
+/**
+ * @param {string} diffString
+ */
+export function parsedLines(diffString) {
+	const lines = diffString.split('\n');
+
+    const parsedLines = lines.map((/** @type {string} */ line, /** @type {number} */ index) => {
+        let status = 'unchanged';
+
+        // Check the first character of the line to determine the status
+        if (line.startsWith('+')) {
+            status = 'add';
+        } else if (line.startsWith('-')) {
+            status = 'remove';
+        }
+
+        return {
+            number: index + 1,
+            text: line,
+            status: status
+        }
+    });
+
+    return parsedLines;
+}
+
+/**
+ * @param {string} diffString
+ */
+export function parseRawLines(diffString) {
+	const lines = diffString.split('\n');
+
+    const parsedLines = lines.map((/** @type {string} */ line, /** @type {number} */ index) => {
+        return {
+            number: index + 1,
+            text: line
+        }
+    });
+
+    return parsedLines;
+}

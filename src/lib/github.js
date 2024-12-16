@@ -1,6 +1,7 @@
 import { dev } from '$app/environment';
 import { GITHUB_TOKEN } from '$env/static/private';
 import { Octokit } from "octokit";
+import { parsedLines } from './util';
 
 const options = dev ? {
 	auth: GITHUB_TOKEN
@@ -69,10 +70,11 @@ export async function getDiff(repository, baseVersion, targetVersion) {
 			}
 		}
 
-		const result = files.map((/** @type {{ sha: any; filename: any; patch: string; }} */ item) => {
+		const result = files.map((/** @type {{ sha: any; filename: any; raw_url: string; patch: string; }} */ item) => {
 			return {
 				sha: item.sha,
 				filename: item.filename,
+				raw_url: item.raw_url,
 				base_url: `https://github.com/${repository}/blob/${baseVersion}/${item.filename}`,
 				target_url: `https://github.com/${repository}/blob/${targetVersion}/${item.filename}`,
 				lines: parsedLines(item.patch),
@@ -83,30 +85,4 @@ export async function getDiff(repository, baseVersion, targetVersion) {
 	} catch (error) {
 		throw new Error(`Cannot get diff between base version: ${baseVersion} and target version: ${targetVersion}`);
 	}
-}
-
-/**
- * @param {string} diffString
- */
-function parsedLines(diffString) {
-	const lines = diffString.split('\n');
-
-    const parsedLines = lines.map((/** @type {string} */ line, /** @type {number} */ index) => {
-        let status = 'unchanged';
-
-        // Check the first character of the line to determine the status
-        if (line.startsWith('+')) {
-            status = 'add';
-        } else if (line.startsWith('-')) {
-            status = 'remove';
-        }
-
-        return {
-            number: index + 1,
-            text: line,
-            status: status
-        }
-    });
-
-    return parsedLines;
 }
