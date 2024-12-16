@@ -149,7 +149,7 @@
 	<p><em>Kind a <a href="https://laravelshift.com" target="_blank" rel="noopener noreferrer">Laravel Shift</a> but tiny and manual.</em></p>
 	<p><em>Motivated from <a href="https://github.com/railsdiff/railsdiff" target="_blank" rel="noopener noreferer">railsdiff.org</a></em></p>
 
-	<form onsubmit={submit}>
+	<form class="form" onsubmit={submit}>
 		<label for="base">Base</label>
 		<select bind:value={baseVersion} id="base" onchange={changeSelectVersion}>
 			<option value="" disabled>Select base version</option>
@@ -188,11 +188,9 @@
 						<a target="_blank" class="target" href={item.target_url}>{targetVersion}</a>
 					</span>
 				</div>
-				<div class="meta">
-					<ul style="display: flex; justify-content: flex-end; list-style-type: none; gap: .5rem; padding; 0; margin: 0;">
-						<li><button disabled={!activeViews[item.sha] || activeViews[item.sha] === 'Diff'} onclick={() => handleActiveViews(item.sha, 'Diff') }>Diff</button></li>
-						<li><button disabled={activeViews[item.sha] === 'Target'} onclick={() => handleActiveViews(item.sha, 'Target') }>Target</button></li>
-					</ul>
+				<div class="meta" style="display: flex; justify-content: flex-end; list-style-type: none; gap: .5rem; padding; 0; margin: 0;">
+					<button class:active={!activeViews[item.sha] || activeViews[item.sha] === 'Diff'} disabled={!activeViews[item.sha] || activeViews[item.sha] === 'Diff'} onclick={() => handleActiveViews(item.sha, 'Diff') }>Diff</button>
+					<button class:active={activeViews[item.sha] === 'Target'} disabled={activeViews[item.sha] === 'Target'} onclick={() => handleActiveViews(item.sha, 'Target') }>Target</button>
 				</div>
 				{#if contentTarget[item.sha] && activeViews[item.sha] === 'Target'}
 				<div class="meta" style="display: flex; justify-content: flex-end;">
@@ -215,19 +213,19 @@
 					</tbody>
 					{/if}
 					{#if activeViews[item.sha] === 'Target'}
-					<tbody style="height: {diffContentHeights[item.sha]}px;">
 						{#if !contentTarget[item.sha]}
+						<tbody style="height: {diffContentHeights[item.sha]}px; display: flex;">
 							<tr>
-								<td>&nbsp;</td>
-								<td style="text-align: center;">
+								<td colspan="2" style="text-align: center;">
 									<button onclick={() => handleContentTarget(item.sha, item.raw_url)}>Show content</button>
 								</td>
 							</tr>
+						</tbody>
 						{:else}
+						<tbody style="height: {diffContentHeights[item.sha]}px;">
 							{#await contentTarget[item.sha]}
 								<tr>
-									<td>&nbsp;</td>
-									<td>Showing content...</td>
+									<td colspan="2" style="text-align: center;">Showing content...</td>
 								</tr>
 							{:then result}
 								{@const lines = parseRawLines(result)}
@@ -243,12 +241,11 @@
 								{/each}
 							{:catch error}
 								<tr>
-									<td>&nsbp;</td>
-									<td>{error.message}</td>
+									<td colspan="2" style="text-align: center;">{error.message}</td>
 								</tr>
 							{/await}
+						</tbody>
 						{/if}
-					</tbody>
 					{/if}
 				</table>
 			</div>
@@ -269,6 +266,19 @@
 	@media screen and (min-width: 1024px) {
 		.container {
 			width: 960px;
+		}
+	}
+
+	.form {
+		display: flex;
+		gap: .5rem;
+		flex-direction: column;
+	}
+
+	@media screen and (min-width: 640px) {
+		.form {
+			flex-direction: row;
+			align-items: center;
 		}
 	}
 
@@ -324,6 +334,33 @@
 
 	.meta .target {
 		color: #8c8;
+	}
+
+	button {
+		padding: .25rem .5rem;
+		font-size: .75rem;
+		border: 1px solid #3498db;
+		background-color: #3498db;
+		color: white;
+		border-radius: 4px;
+		cursor: pointer;
+		transition: all 0.3s ease;
+	}
+
+	button:hover {
+		background-color: #2980b9;
+		border-color: #2980b9;
+	}
+
+	button.active {
+		background-color: #2ecc71;
+		border-color: #27ae60;
+	}
+
+	/* If you want to style disabled state */
+	button:disabled {
+		opacity: 0.6;
+		cursor: default;
 	}
 
 	table {
