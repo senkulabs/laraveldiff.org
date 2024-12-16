@@ -1,5 +1,5 @@
 <script>
-	import { selectVersion } from '$lib/util';
+	import { parseRawLines, selectVersion } from '$lib/util';
 	
 	let { data } = $props();
 	let tags = data.tags;
@@ -94,6 +94,28 @@
 		// Create a new object instead of mutating the existing one
 		activeViews = { ...activeViews, [id]: view };
 	}
+
+	/**
+	 * @type {{ [key: string]: string }}
+	 */
+	let contentTarget = $state({});
+	/**
+	 * @param {any} id
+	 * @param {string} raw_url
+	 */
+	function handleContentTarget(id, raw_url) {
+		const content = fetch(`api/content?raw_url=${raw_url}`)
+			.then(response => response.text());
+		contentTarget = { ...contentTarget, [id]: content }
+	}
+
+	/**
+	 * @param {Promise<{status: 'fulfilled', result: string}>} result
+	 */
+	async function handleCopyContent(result) {
+		let response = await result;
+		await navigator.clipboard.writeText(response);
+	}
 </script>
 
 <svelte:head>
@@ -159,6 +181,11 @@
 						<li><button class:active={activeViews[item.sha] === 'Target'} onclick={() => handleActiveViews(item.sha, 'Target') }>Target</button></li>
 					</ul>
 				</div>
+				{#if contentTarget[item.sha]}
+				<div class="meta" style="display: flex; justify-content: flex-end;">
+					<button onclick={() => handleCopyContent(contentTarget[item.sha])}>copy</button>
+				</div>
+				{/if}
 				<table>
 					{#if !activeViews[item.sha] || activeViews[item.sha] === 'Diff'}
 					<tbody bind:clientHeight={diffContentHeights[item.sha]}>
@@ -176,10 +203,41 @@
 					{/if}
 					{#if activeViews[item.sha] === 'Target'}
 					<tbody style="height: {diffContentHeights[item.sha]}px;">
-						<tr>
-							<td>&nbsp;</td>
-							<td style="text-align: center;">TBA! Content goes here!</td>
-						</tr>
+						{#if !contentTarget[item.sha]}
+							<tr>
+								<td>&nbsp;</td>
+								<td style="text-align: center;">
+									<span>
+										TBA! Content goes here!
+									</span>
+									<button onclick={() => handleContentTarget(item.sha, item.raw_url)}>Show</button>
+								</td>
+							</tr>
+						{:else}
+							{#await contentTarget[item.sha]}
+								<tr>
+									<td>&nbsp;</td>
+									<td>Showing content...</td>
+								</tr>
+							{:then result}
+								{@const lines = parseRawLines(result)}
+								{#each lines as line}
+									<tr>
+										<td class="line-num" data-line-number={line.number}></td>
+										<td class="line-code">
+											<span class="line-code-inner">
+												<span>{line.text}</span>
+											</span>
+										</td>
+									</tr>
+								{/each}
+							{:catch error}
+								<tr>
+									<td>&nsbp;</td>
+									<td>{error.message}</td>
+								</tr>
+							{/await}
+						{/if}
 					</tbody>
 					{/if}
 				</table>
@@ -194,7 +252,7 @@
 	.container {
 		width: 100%;
 		margin: 0 auto;
-		padding: 0 1rem;
+		padding: .5rem 1rem;
 	}
 
 	/* Large screen */
@@ -217,7 +275,7 @@
 	.file {
 		border: 1px solid #ddd;
 		border-radius: 4px;
-		margin-bottom: 2em;
+		margin-bottom: 2rem;
 	}
 
 	.highlight {
