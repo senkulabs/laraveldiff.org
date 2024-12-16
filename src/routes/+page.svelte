@@ -34,7 +34,12 @@
 	/**
 	 * @type {{ [key: string]: string }}
 	 */
-	 let contentTarget = $state({});
+	let contentTarget = $state({});
+
+	/**
+	 * @type { undefined | string }
+	 */
+	let copied = $state(); 
 
 	/**
 	 * @param {{ target: { value: any; }; }} event
@@ -113,11 +118,16 @@
 	}
 
 	/**
+	 * @param {string} id
 	 * @param {Promise<{status: 'fulfilled', result: string}>} result
 	 */
-	async function handleCopyContent(result) {
+	async function handleCopyContent(id, result) {
 		let response = await result;
 		await navigator.clipboard.writeText(response);
+		copied = id;
+		setTimeout(() => {
+			copied = undefined;
+		}, 2000);
 	}
 </script>
 
@@ -186,7 +196,7 @@
 				</div>
 				{#if contentTarget[item.sha]}
 				<div class="meta" style="display: flex; justify-content: flex-end;">
-					<button onclick={() => handleCopyContent(contentTarget[item.sha])}>copy</button>
+					<button onclick={() => handleCopyContent(item.sha, contentTarget[item.sha])}>{copied === item.sha ? 'copied' : 'copy'}</button>
 				</div>
 				{/if}
 				<table>
