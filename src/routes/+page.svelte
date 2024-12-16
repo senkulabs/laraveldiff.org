@@ -190,11 +190,11 @@
 				</div>
 				<div class="meta">
 					<ul style="display: flex; justify-content: flex-end; list-style-type: none; gap: .5rem; padding; 0; margin: 0;">
-						<li><button class:active={!activeViews[item.sha] || activeViews[item.sha] === 'Diff'} onclick={() => handleActiveViews(item.sha, 'Diff') }>Diff</button></li>
-						<li><button class:active={activeViews[item.sha] === 'Target'} onclick={() => handleActiveViews(item.sha, 'Target') }>Target</button></li>
+						<li><button disabled={!activeViews[item.sha] || activeViews[item.sha] === 'Diff'} onclick={() => handleActiveViews(item.sha, 'Diff') }>Diff</button></li>
+						<li><button disabled={activeViews[item.sha] === 'Target'} onclick={() => handleActiveViews(item.sha, 'Target') }>Target</button></li>
 					</ul>
 				</div>
-				{#if contentTarget[item.sha]}
+				{#if contentTarget[item.sha] && activeViews[item.sha] === 'Target'}
 				<div class="meta" style="display: flex; justify-content: flex-end;">
 					<button onclick={() => handleCopyContent(item.sha, contentTarget[item.sha])}>{copied === item.sha ? 'copied' : 'copy'}</button>
 				</div>
