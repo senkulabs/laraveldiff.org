@@ -210,10 +210,7 @@
 							<tr>
 								<td>&nbsp;</td>
 								<td style="text-align: center;">
-									<span>
-										TBA! Content goes here!
-									</span>
-									<button onclick={() => handleContentTarget(item.sha, item.raw_url)}>Show</button>
+									<button onclick={() => handleContentTarget(item.sha, item.raw_url)}>Show content</button>
 								</td>
 							</tr>
 						{:else}
