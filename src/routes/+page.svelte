@@ -10,6 +10,7 @@
 
 	let base = $state(selectVersion(tags[1], tags).base);
 	let target = $state(selectVersion(tags[1], tags).target);
+	let additionalTitle = $state(`${tags[1]} - ${tags[0]}`);
 
 	let toggleCollapse = $state(false);
 	let listHeight = $state(0);
@@ -20,6 +21,20 @@
 	let list;
 
 	let highlighted = $state('');
+	/**
+	 * @type {{ [key: string]: number }}
+	 */
+	 let diffContentHeights = $state({});
+
+	/**
+	 * @type {{ [key: string]: string }}
+	 */
+	let activeViews = $state({}); // Tracks active view for each block
+
+	/**
+	 * @type {{ [key: string]: string }}
+	 */
+	 let contentTarget = $state({});
 
 	/**
 	 * @param {{ target: { value: any; }; }} event
@@ -31,8 +46,6 @@
 		targetVersion = target[0];
 	}
 
-	let additionalTitle = $state(`${tags[1]} - ${tags[0]}`);
-
 	/**
 	 * @param {{ preventDefault: () => void; }} event
 	 */
@@ -40,6 +53,9 @@
 		event.preventDefault();
 		// Reset toggle collapse to false if the the list was collapsed.
 		toggleCollapse = false;
+		// Reset activeViews & contentTarget
+		activeViews = {};
+		contentTarget = {};
 		diff = fetch(`/api/diff?base=${baseVersion}&target=${targetVersion}`)
 			.then(response => response.json());
 		additionalTitle = `${baseVersion} - ${targetVersion}`;
@@ -78,15 +94,6 @@
 	});
 
 	/**
-	 * @type {{ [key: string]: number }}
-	 */
-	let diffContentHeights = $state({});
-
-	/**
-	 * @type {{ [key: string]: string }}
-	 */
-	let activeViews = $state({}); // Tracks active view for each block
-	/**
 	 * @param {string | number} id
 	 * @param {string} view
 	 */
@@ -95,10 +102,6 @@
 		activeViews = { ...activeViews, [id]: view };
 	}
 
-	/**
-	 * @type {{ [key: string]: string }}
-	 */
-	let contentTarget = $state({});
 	/**
 	 * @param {any} id
 	 * @param {string} raw_url
