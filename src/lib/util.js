@@ -26,8 +26,10 @@ export function selectVersion(baseVersion, tags) {
             case 4:
                 if (base[1] === 2) {
                     return item.startsWith('v5.0');
+                } else if (base[1] === 1) {
+                    return item.startsWith('v4.2');
                 } else {
-                    return item.startsWith('v4');
+                    return item.startsWith('v4.1');
                 }
             case 5:
                 switch (base[1]) {
