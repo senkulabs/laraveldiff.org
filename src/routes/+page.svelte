@@ -214,9 +214,9 @@
 					{/if}
 					{#if activeViews[item.sha] === 'Target'}
 						{#if !contentTarget[item.sha]}
-						<tbody style="height: {diffContentHeights[item.sha]}px; display: flex;">
-							<tr>
-								<td colspan="2" style="text-align: center;">
+						<tbody style="height: {diffContentHeights[item.sha]}px; display: flex; align-items: flex-start;">
+							<tr style="margin-top: 1rem; margin-right: 1rem;">
+								<td colspan="2" style="text-align: right;">
 									<button onclick={() => handleContentTarget(item.sha, item.raw_url)}>Show content</button>
 								</td>
 							</tr>
