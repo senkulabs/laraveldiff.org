@@ -213,7 +213,15 @@
 					</tbody>
 					{/if}
 					{#if activeViews[item.sha] === 'Target'}
-						{#if !contentTarget[item.sha]}
+						{#if item.status === 'removed'}
+						<tbody style="height: {diffContentHeights[item.sha]}px; display: flex; align-items: flex-start;">
+							<tr style="margin-top: 1rem;">
+								<td colspan="2" style="text-align: center;">
+									<span>File removed.</span>
+								</td>
+							</tr>
+						</tbody>
+						{:else if !contentTarget[item.sha] && item.status !== 'removed'}
 						<tbody style="height: {diffContentHeights[item.sha]}px; display: flex; align-items: flex-start;">
 							<tr style="margin-top: 1rem; margin-right: 1rem;">
 								<td colspan="2" style="text-align: right;">

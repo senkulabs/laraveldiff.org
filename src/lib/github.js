@@ -70,10 +70,11 @@ export async function getDiff(repository, baseVersion, targetVersion) {
 			}
 		}
 
-		const result = files.map((/** @type {{ sha: any; filename: any; raw_url: string; patch: string; }} */ item) => {
+		const result = files.map((/** @type {{ sha: string; filename: string; status: string; raw_url: string; patch: string; }} */ item) => {
 			return {
 				sha: item.sha,
 				filename: item.filename,
+				status: item.status,
 				raw_url: item.raw_url,
 				base_url: `https://github.com/${repository}/blob/${baseVersion}/${item.filename}`,
 				target_url: `https://github.com/${repository}/blob/${targetVersion}/${item.filename}`,
