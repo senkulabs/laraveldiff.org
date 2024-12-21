@@ -22,7 +22,6 @@ export async function GET({ request, url }) {
     }
 
     try {
-        console.log(raw_url);
         let result = await fetch(raw_url);
         let content = await result.text();
 
