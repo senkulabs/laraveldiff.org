@@ -45,3 +45,10 @@ cp .env.example .env
 pnpm install
 pnpm run dev
 ```
+
+## Test Before Deploy or Push to Cloudflare
+
+```sh
+pnpm run build
+npx wrangler pages dev .svelte-kit/cloudflare
+```
