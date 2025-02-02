@@ -1,4 +1,4 @@
-import { allTags } from '$lib/github';
+import { allTags } from '$lib/github.js';
 
 export async function GET({ request, url }) {
     const isCloudflare = typeof caches !== 'undefined';

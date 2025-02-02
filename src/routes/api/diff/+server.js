@@ -1,4 +1,4 @@
-import { getDiff } from '$lib/github';
+import { getDiff } from '$lib/github.js';
 
 export async function GET({ request, url }) {
     const isCloudflare = typeof caches !== 'undefined';

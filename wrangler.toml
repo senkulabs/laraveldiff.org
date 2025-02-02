@@ -1,4 +1,4 @@
 name = "laraveldiff-org"
-pages_build_output_dir = "./.svelte-kit/cloudflare"
+pages_build_output_dir = ".svelte-kit/cloudflare"
 compatibility_date = "2024-11-11"
 compatibility_flags = ["nodejs_compat_v2"]
