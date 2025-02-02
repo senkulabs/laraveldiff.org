@@ -1,38 +1,4 @@
-import { dev } from '$app/environment';
-import { GITHUB_TOKEN } from '$env/static/private';
-import { Octokit } from "octokit";
-
-const options = dev ? {
-    auth: GITHUB_TOKEN
-} : {};
-
-const octokit = new Octokit(options);
-
-/**
- * @param {string} repository
- */
-async function allTags(repository) {
-    const [owner, repo] = repository.split('/', 2);
-
-    /**
-     * @type {any[]}
-     */
-    let tagNames = [];
-    for await (const response of octokit.paginate.iterator(
-        octokit.rest.repos.listTags,
-        { owner, per_page: 100, repo }
-    )) {
-        tagNames = tagNames.concat(response.data.map((data) => data.name));
-    }
-
-    const skipTags = ['v4.0.0-BETA4', 'v4.0.0-BETA3'];
-
-    let filteredTagNames = tagNames.filter(tag => {
-        return !skipTags.includes(tag) && !tag.startsWith('v3');
-    });
-
-    return filteredTagNames;
-}
+import { allTags } from '$lib/github.js';
 
 export async function GET({ request, url }) {
     const isCloudflare = typeof caches !== 'undefined';

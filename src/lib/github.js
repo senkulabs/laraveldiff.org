@@ -1,6 +1,6 @@
 import { dev } from '$app/environment';
 import { GITHUB_TOKEN } from '$env/static/private';
-import { Octokit } from "octokit";
+import { Octokit } from "@octokit/rest";
 import { parsedLines } from './util';
 
 const options = dev ? {

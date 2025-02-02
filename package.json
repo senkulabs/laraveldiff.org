@@ -26,6 +26,6 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"octokit": "^4.1.0"
+		"@octokit/rest": "^21.1.0"
 	}
 }
