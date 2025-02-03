@@ -8,7 +8,7 @@ Previously, this project was split into two projects: worker-laraveldiff with Cl
 
 > Pages Functions allows you to build full-stack applications by executing code on the Cloudflare network with Cloudflare Workers. With Functions, you can introduce application aspects such as authenticating, handling form submissions, or working with middleware. Workers runtime features are configurable on Pages Functions, including compatibility with a subset of Node.js APIs and the ability to set a compatibility date or compatibility flag. *Source: [Cloudflare Pages Functions](https://developers.cloudflare.com/pages/functions/)*.
 
-In SvelteKit, instead of create `functions` directory, I just need to follow [the guide provided by Cloudflare Page Functions](https://developers.cloudflare.com/pages/framework-guides/deploy-a-svelte-site/#functions-setup). You can see the implementation in [routes/api](./src/routes/api/) directory and I just need tweak the [wrangler.toml](./wrangler.toml) file.
+In SvelteKit, instead of create `functions` directory, I just need to follow [the guide provided by Cloudflare Page Functions](https://developers.cloudflare.com/pages/framework-guides/deploy-a-svelte-kit-site/#functions-setup). You can see the implementation in [routes/api](./src/routes/api/) directory and I just need tweak the [wrangler.toml](./wrangler.toml) file.
 
 ## Requirements
 
