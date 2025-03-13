@@ -1,16 +1,18 @@
 <script>
+	import { goto } from '$app/navigation';
 	import { parseRawLines, selectVersion } from '$lib/util';
 	
 	let { data } = $props();
+	const base = data.base;
+	const target = data.target;
 	let tags = data.tags;
 	let diff = $state(data.diff);
 
-	let baseVersion = $state(tags[1]);
-	let targetVersion = $state(tags[0]);
-
-	let base = $state(selectVersion(tags[1], tags).base);
-	let target = $state(selectVersion(tags[1], tags).target);
-	let additionalTitle = $state(`${tags[1]} - ${tags[0]}`);
+	let baseVersion = $state(base);
+	let targetVersion = $state(target);
+	let bases = $state(selectVersion(base, tags).base);
+	let targets = $state(selectVersion(base, tags).target);
+	let additionalTitle = $state(`${base} - ${target}`);
 
 	let toggleCollapse = $state(false);
 	let listHeight = $state(0);
@@ -46,9 +48,9 @@
 	 */
 	function changeSelectVersion(event) {
 		baseVersion = event.target.value;
-		base = selectVersion(baseVersion, tags).base;
-		target = selectVersion(baseVersion, tags).target;
-		targetVersion = target[0];
+		bases = selectVersion(baseVersion, tags).base;
+		targets = selectVersion(baseVersion, tags).target;
+		targetVersion = targets[0];
 	}
 
 	/**
@@ -64,6 +66,8 @@
 		diff = fetch(`/api/diff?base=${baseVersion}&target=${targetVersion}`)
 			.then(response => response.json());
 		additionalTitle = `${baseVersion} - ${targetVersion}`;
+		const params = new URLSearchParams({ base: baseVersion, target: targetVersion });
+		goto(`/?${params.toString()}`);
 	}
 
 	function handleToggleCollapse() {
@@ -153,7 +157,7 @@
 		<label for="base">Base</label>
 		<select bind:value={baseVersion} id="base" onchange={changeSelectVersion}>
 			<option value="" disabled>Select base version</option>
-			{#each base as item}
+			{#each bases as item}
 				<option value={item}>{item}</option>
 			{/each}
 		</select>
@@ -161,7 +165,7 @@
 		<label for="target">Target</label>
 		<select bind:value={targetVersion} id="target">
 			<option value="" disabled>Select target version</option>
-			{#each target as item}
+			{#each targets as item}
 				<option value={item}>{item}</option>
 			{/each}
 		</select>
@@ -172,92 +176,96 @@
 	{#await diff}
 		<p>Get diff between {baseVersion} and {targetVersion}...</p>
 	{:then result}
-		<p>Showing <button onclick={handleToggleCollapse}>{result.length} changed {result.length > 1 ? 'files' : 'file'}</button>.</p>
-		<ol bind:this={list} style:height={toggleCollapse ? `${listHeight}px` : '0px'} class:open={toggleCollapse} class="collapse" style="list-style-type: none; margin: 0; margin-bottom: 1rem; padding: 0;">
+		{#if typeof result === 'string'}
+			<p style="color: red;"><strong>Error: {result}</strong></p>
+		{:else}
+			<p>Showing <button onclick={handleToggleCollapse}>{result.length} changed {result.length > 1 ? 'files' : 'file'}</button>.</p>
+			<ol bind:this={list} style:height={toggleCollapse ? `${listHeight}px` : '0px'} class:open={toggleCollapse} class="collapse" style="list-style-type: none; margin: 0; margin-bottom: 1rem; padding: 0;">
+				{#each result as item}
+					<li><a href="#diff-{item.sha}" onclick={() => handleHighlightTarget(item.sha)}>{item.filename}</a></li>
+				{/each}
+			</ol>
 			{#each result as item}
-				<li><a href="#diff-{item.sha}" onclick={() => handleHighlightTarget(item.sha)}>{item.filename}</a></li>
-			{/each}
-		</ol>
-		{#each result as item}
-			<div class="file" class:highlight={highlighted === `#diff-${item.sha}`} id="diff-{item.sha}">
-				<div class="meta">
-					<span><a class="file-anchor" onclick={() => handleHighlightTarget(item.sha)} href="#diff-{item.sha}">{item.filename}</a></span>
-					<span class="links">
-						<a target="_blank" class="base" href={item.base_url}>{baseVersion}</a>
-						...
-						<a target="_blank" class="target" href={item.target_url}>{targetVersion}</a>
-					</span>
-				</div>
-				<div class="meta" style="display: flex; justify-content: flex-end; list-style-type: none; gap: .5rem; padding; 0; margin: 0;">
-					<button class:active={!activeViews[item.sha] || activeViews[item.sha] === 'Diff'} disabled={!activeViews[item.sha] || activeViews[item.sha] === 'Diff'} onclick={() => handleActiveViews(item.sha, 'Diff') }>Diff</button>
-					<button class:active={activeViews[item.sha] === 'Target'} disabled={activeViews[item.sha] === 'Target'} onclick={() => handleActiveViews(item.sha, 'Target') }>Target</button>
-				</div>
-				{#if contentTarget[item.sha] && activeViews[item.sha] === 'Target'}
-				<div class="meta" style="display: flex; justify-content: flex-end;">
-					<button onclick={() => handleCopyContent(item.sha, contentTarget[item.sha])}>{copied === item.sha ? 'copied' : 'copy'}</button>
-				</div>
-				{/if}
-				<table>
-					{#if !activeViews[item.sha] || activeViews[item.sha] === 'Diff'}
-					<tbody bind:clientHeight={diffContentHeights[item.sha]}>
-						{#each item.lines as line}
-							<tr>
-								<td class="line-num {line.status}" data-line-number={line.number}></td>
-								<td class="line-code {line.status}">
-									<span class="line-code-inner" data-code-marker={line.text.substring(0, 1)}>
-										<span>{line.text.substring(1)}</span>
-									</span>
-								</td>
-							</tr>
-						{/each}
-					</tbody>
+				<div class="file" class:highlight={highlighted === `#diff-${item.sha}`} id="diff-{item.sha}">
+					<div class="meta">
+						<span><a class="file-anchor" onclick={() => handleHighlightTarget(item.sha)} href="#diff-{item.sha}">{item.filename}</a></span>
+						<span class="links">
+							<a target="_blank" class="base" href={item.base_url}>{baseVersion}</a>
+							...
+							<a target="_blank" class="target" href={item.target_url}>{targetVersion}</a>
+						</span>
+					</div>
+					<div class="meta" style="display: flex; justify-content: flex-end; list-style-type: none; gap: .5rem; padding; 0; margin: 0;">
+						<button class:active={!activeViews[item.sha] || activeViews[item.sha] === 'Diff'} disabled={!activeViews[item.sha] || activeViews[item.sha] === 'Diff'} onclick={() => handleActiveViews(item.sha, 'Diff') }>Diff</button>
+						<button class:active={activeViews[item.sha] === 'Target'} disabled={activeViews[item.sha] === 'Target'} onclick={() => handleActiveViews(item.sha, 'Target') }>Target</button>
+					</div>
+					{#if contentTarget[item.sha] && activeViews[item.sha] === 'Target'}
+					<div class="meta" style="display: flex; justify-content: flex-end;">
+						<button onclick={() => handleCopyContent(item.sha, contentTarget[item.sha])}>{copied === item.sha ? 'copied' : 'copy'}</button>
+					</div>
 					{/if}
-					{#if activeViews[item.sha] === 'Target'}
-						{#if item.status === 'removed'}
-						<tbody style="height: {diffContentHeights[item.sha]}px; display: flex; align-items: flex-start;">
-							<tr style="margin-top: 1rem;">
-								<td colspan="2" style="text-align: center;">
-									<span>File removed.</span>
-								</td>
-							</tr>
-						</tbody>
-						{:else if !contentTarget[item.sha] && item.status !== 'removed'}
-						<tbody style="height: {diffContentHeights[item.sha]}px; display: flex; align-items: flex-start;">
-							<tr style="margin-top: 1rem; margin-right: 1rem;">
-								<td colspan="2" style="text-align: right;">
-									<button onclick={() => handleContentTarget(item.sha, item.raw_url)}>Show content</button>
-								</td>
-							</tr>
-						</tbody>
-						{:else}
-						<tbody style="height: {diffContentHeights[item.sha]}px;">
-							{#await contentTarget[item.sha]}
+					<table>
+						{#if !activeViews[item.sha] || activeViews[item.sha] === 'Diff'}
+						<tbody bind:clientHeight={diffContentHeights[item.sha]}>
+							{#each item.lines as line}
 								<tr>
-									<td colspan="2" style="text-align: center;">Showing content...</td>
+									<td class="line-num {line.status}" data-line-number={line.number}></td>
+									<td class="line-code {line.status}">
+										<span class="line-code-inner" data-code-marker={line.text.substring(0, 1)}>
+											<span>{line.text.substring(1)}</span>
+										</span>
+									</td>
 								</tr>
-							{:then result}
-								{@const lines = parseRawLines(result)}
-								{#each lines as line}
-									<tr>
-										<td class="line-num" data-line-number={line.number}></td>
-										<td class="line-code">
-											<span class="line-code-inner">
-												<span>{line.text}</span>
-											</span>
-										</td>
-									</tr>
-								{/each}
-							{:catch error}
-								<tr>
-									<td colspan="2" style="text-align: center;">{error.message}</td>
-								</tr>
-							{/await}
+							{/each}
 						</tbody>
 						{/if}
-					{/if}
-				</table>
-			</div>
-		{/each}
+						{#if activeViews[item.sha] === 'Target'}
+							{#if item.status === 'removed'}
+							<tbody style="height: {diffContentHeights[item.sha]}px; display: flex; align-items: flex-start;">
+								<tr style="margin-top: 1rem;">
+									<td colspan="2" style="text-align: center;">
+										<span>File removed.</span>
+									</td>
+								</tr>
+							</tbody>
+							{:else if !contentTarget[item.sha] && item.status !== 'removed'}
+							<tbody style="height: {diffContentHeights[item.sha]}px; display: flex; align-items: flex-start;">
+								<tr style="margin-top: 1rem; margin-right: 1rem;">
+									<td colspan="2" style="text-align: right;">
+										<button onclick={() => handleContentTarget(item.sha, item.raw_url)}>Show content</button>
+									</td>
+								</tr>
+							</tbody>
+							{:else}
+							<tbody style="height: {diffContentHeights[item.sha]}px;">
+								{#await contentTarget[item.sha]}
+									<tr>
+										<td colspan="2" style="text-align: center;">Showing content...</td>
+									</tr>
+								{:then result}
+									{@const lines = parseRawLines(result)}
+									{#each lines as line}
+										<tr>
+											<td class="line-num" data-line-number={line.number}></td>
+											<td class="line-code">
+												<span class="line-code-inner">
+													<span>{line.text}</span>
+												</span>
+											</td>
+										</tr>
+									{/each}
+								{:catch error}
+									<tr>
+										<td colspan="2" style="text-align: center;">{error.message}</td>
+									</tr>
+								{/await}
+							</tbody>
+							{/if}
+						{/if}
+					</table>
+				</div>
+			{/each}
+		{/if}
 	{:catch error}
 		<p>{error.message}</p>
 	{/await}
