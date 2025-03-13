@@ -11,6 +11,7 @@ export async function GET({ request, url }) {
     }
 
     const VERSION_5 = 5;
+    const MINOR_8_IN_VERSION_5 = 8;
     const VERSION_6 = 6;
     const baseVersion = url.searchParams.get('base');
     const targetVersion = url.searchParams.get('target');
@@ -78,14 +79,16 @@ export async function GET({ request, url }) {
 
         // Special case when upgrade Laravel from version 5 to 6.
         if (base[0] === VERSION_5 && target[0] == VERSION_6) {
-            return new Response(`Direct upgrade from version ${baseVersion} to ${targetVersion} is not supported. Please upgrade incrementally!`, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Headers': 'GET, POST'
-                },
-                status: 400
-            });
+            if (base[1] !== MINOR_8_IN_VERSION_5) {
+                return new Response(`Direct upgrade from version ${baseVersion} to ${targetVersion} is not supported. Please upgrade incrementally!`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*',
+                        'Access-Control-Allow-Headers': 'GET, POST'
+                    },
+                    status: 400
+                });   
+            }
         }
         
 
